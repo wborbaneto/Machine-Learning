@@ -5,20 +5,6 @@ Created on Fri Oct 12 17:26:43 2018
 @author: AHCI
 """
 
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Oct  7 17:51:04 2018
-
-@author: AHCI
-"""
-
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Oct  7 17:46:35 2018
-
-@author: AHCI
-"""
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -35,21 +21,9 @@ def sigmoid_grad(z):
 	g = h*(1-h)
 	return g
 
-
-
-#def plot_class():
-#    numC = 3
-#slices = [c,n,a]
-#yy = np.zeros([1,numC])
-#for s in range(0,numC):
-#    buffer = np.zeros([1, numC])
- #   buffer[:,s] = 1
- #   idx = np.all(y==buffer,1)
- #   plt.plot(x[idx,:],'.')
-   
         
 class CustomError(Exception):
-    """Class to handle errors"""
+    """Class to handle errors."""
     
     def __init__(self, value ='', message=''):
         """Get the value parsed as error.
@@ -70,7 +44,10 @@ class CustomError(Exception):
         return repr(str(self.value)+': '+self.message)    
      
 class Algorithm():
-    """Machine learning algoritm Class"""
+    """Machine learning algoritm Class.
+    
+    This Class holds data manipulation and evaluation methods.
+    """
     
     def __init__(self):
         """Not implemented"""
@@ -169,92 +146,222 @@ class Algorithm():
         
 
 class MultiLayerPerceptron(Algorithm):
+    """Class that represents a MLP"""
+    
     def __init__(self,inputLayer,hiddenLayer,outputLayer,
                  learningRate=1, regularizationParameter=0):
+        """Initialize the MLP architeture.
+        
+        Parameters
+        ----------
+        inputLayer : int32
+            Number of neurons on the input layer.
+        hiddenLayer : int32
+            Number of neurons on the hidden layer.
+        outputLayer : int32
+            Number of neurons on the output layer.
+        learningRate : float64, default = 1
+            Learning rate parameter for our MLP. 
+            Utilized on the Gradient Descent
+        regularizationParameter : float64, default = 0
+            May be added if you want to regularize the Cost function.
+            
+        """
+        # Defining the standadrd states of our MLP.
         self.inputLayer = inputLayer
         self.hiddenLayer = hiddenLayer
         self.outputLayer = outputLayer
         self.lrp = learningRate
         self.rp = regularizationParameter
+        # Theta are the weights of our MLP. They follow the general rule
+        # ThetaL.shape() = [len(L+1), len(L)+1], where L is a Layer
         self.thetaOne = np.zeros((self.hiddenLayer,self.inputLayer+1))
         self.thetaTwo = np.zeros((self.outputLayer,self.hiddenLayer+1))
+        return None
 
-
-    def initialize(self, inputData, outputData):
+    def initialize(self, inputData, expectedOutput):
+            """Initialize the inputs.
+            
+            This is done so there's no need to reinitialize the object itself
+            if the user wants to change the input.
+            
+            Parameters
+            ----------
+            inputData : np.array([][], type = float64)
+                Data that will be classified.
+            outputData :np.array([][], type = float64)
+                Expected output (Supervisioned algorithm).
+             
+            """
             self.x = inputData
-            self.y = outputData
-            return 1
+            self.y = expectedOutput
+            return None
 
 
-    def train(self, trainSize, epochsNum, thetaOne=None, thetaTwo=None, randomize=1):
-        #thetaOne = thetaOne if thetaOne is not None else self.thetaOne
-        #thetaTwo = thetaTwo if thetaTwo is not None else self.thetaTwo
+    def train(self, trainSize, epochsNum, thetaOne=None, thetaTwo=None, randomize=0):
+        """Training our MLP.
         
+        Parameters
+        ----------
+        trainSize : float64
+            The factor that corresponds to what % of the input data corresponds
+            to the train part. 
+            ex. trainData = inputData[0:trainSize*inputData.shape(0)]
+        epochsNum : int32
+            Number of epochs with which the MLP will be trained.
+        thetaOne,thetaTwo  : np.array([][], type = float64), default = None
+            Weights of our MLP. Despite being a status, they can be inserted
+            by the user as a mean of testing customizations.
+        randomize : bool, default = 0
+            Defines if the user wants to randomize or not the data.
+        
+        """
+        # Shuffle the data or not utilizing Algorithm.random_ini()
         if randomize:
             inputData, outputData = self.random_ini(self.x, self.y)
         # Slicing the data to the desired train size.
         self.trainInput,self.testInput,self.trainOutput,self.testOutput = self.dataPartition(inputData, outputData,trainSize)
         # To reduce the number of .T operations, do this beforehand.
         self.trainOutput,self.testOutput  = self.trainOutput.T,self.testOutput.T
-        # Some self. definitions.
+        
+        # Some status definitions.
         [self.p,self.n] = self.trainInput.shape
         self.epochsNum = epochsNum
         self.JList = list()
+        
         # The backpropagation Loop.
         for ep in range(0,epochsNum):
+            # Feedfowarfing our MLP
             a1, z2, a2, a3 = self.feedf(self.trainInput)
+            # Calculating the new Cost (error)
             self.JList += self.costf(self.trainOutput, a3)
+            # Calculating the theta using backpropagation
             self.thetaOne, self.thetaTwo = self.backp(self.trainOutput, a3, a2, z2, a1)
+            
         return self.thetaOne, self.thetaTwo
                    
 
-    def backp(self, outputData, a3, a2, z2, a1, thetaOne=None, thetaTwo=None, p=None):
+    def backp(self, outputData, a3, a2, z2, a1, thetaOne=None, thetaTwo=None):
+        """Training our MLP.
+        
+        In the same way as before, I opted to maintain the thetas as optional
+        parameters, so the user can insert custom values to test scenarios.
+        
+        Parameters
+        ----------
+        trainSize : float64
+            The factor that corresponds to what % of the input data corresponds
+            to the train part. 
+            ex. trainData = inputData[0:trainSize*inputData.shape(0)]
+        epochsNum : int32
+            Number of epochs with which the MLP will be trained.
+        thetaOne,thetaTwo  : np.array([][], type = float64), default = None
+            Weights of our MLP. Despite being a status, they can be inserted
+            by the user as a mean of testing customizations.
+        randomize : bool, default = 0
+            Defines if the user wants to randomize or not the data.
+            
+        Returns
+        ---------
+        thetaOne,thetaTwo :  np.array([][], type = float64)
+            The new calculated values of thetaOne and thetaTwo
+        
+        """
+        # If the user don't insert Theta, we should get the status one.
         thetaOne = thetaOne if thetaOne is not None else self.thetaOne
         thetaTwo = thetaTwo if thetaTwo is not None else self.thetaTwo
-        p = p if p is not None else self.p
         
         delta3 = a3 - outputData
         thetaTwoBuffer = thetaTwo[:,1:]
         delta2 = (thetaTwoBuffer.T @ delta3)*sigmoid_grad(z2)
         
-        thetaTwoGrad = (1/p) * (delta3 @ a2.T)
-        thetaOneGrad = (1/p) * (delta2 @ a1.T)
-        thetaTwoGrad[:,1:] += (self.rp/(p)) * thetaTwo[:,1:]
-        thetaOneGrad[:,1:] += (self.rp/(p)) * thetaOne[:,1:]
+        thetaTwoGrad = (1/self.p) * (delta3 @ a2.T)
+        thetaOneGrad = (1/self.p) * (delta2 @ a1.T)
+        thetaTwoGrad[:,1:] += (self.rp/(self.p)) * thetaTwo[:,1:]
+        thetaOneGrad[:,1:] += (self.rp/(self.p)) * thetaOne[:,1:]
         thetaOne = thetaOne - self.lrp*thetaOneGrad
         thetaTwo = thetaTwo - self.lrp*thetaTwoGrad
         return thetaOne, thetaTwo
     
     
-    def costf(self, outputData, a3, thetaOne=None, thetaTwo=None, p=None):
+    def costf(self, outputData, a3, thetaOne=None, thetaTwo=None):
+        """Calculating the cost function.
+        
+        In the same way as before, I opted to maintain the thetas as optional
+        parameters, so the user can insert custom values to test scenarios.
+        
+        Parameters
+        ----------
+        outputData
+        a3 : np.array([][], type = float64)
+            The outuput values after our MLP has been feedfoward
+        thetaOne,thetaTwo  : np.array([][], type = float64), default = None
+            Weights of our MLP.
+        
+        Returns
+        ---------
+        J : float64
+            The value of the cost given an output value and an expected value.
+        """
         thetaOne = thetaOne if thetaOne is not None else self.thetaOne
         thetaTwo = thetaTwo if thetaTwo is not None else self.thetaTwo
-        p = p if p is not None else self.p
         
-        J = (1/p) * np.sum( np.sum( (-outputData) * np.log(a3)-
+        J = (1/self.p) * np.sum( np.sum( (-outputData) * np.log(a3)-
                                       (1 - outputData) * np.log(1 - a3))
                                 )
-        JReg = (self.rp/(2*p))*(np.sum(
+        JReg = (self.rp/(2*self.p))*(np.sum(
                 np.sum(thetaOne[:,1:]**2)) + 
                 np.sum(np.sum(thetaTwo[:,1:]**2)))
         J += JReg      
         return [J]
 
 
-    def feedf(self, inputData, thetaOne = None, thetaTwo = None, p=None):
+    def feedf(self, inputData, thetaOne = None, thetaTwo = None):
+        """Feedfowarding our MLP.
+        
+        In the same way as before, I opted to maintain the thetas as optional
+        parameters, so the user can insert custom values to test scenarios.
+        
+        Parameters
+        ----------
+        outputData
+        inputData : np.array([][], type = float64)
+            A array containing inputs to execute one interaction.
+        thetaOne,thetaTwo  : np.array([][], type = float64), default = None
+            Weights of our MLP.
+        
+        Returns
+        ---------
+        a1, a2, a3 : np.array([][], type = float64)
+            The outputs for each layer (Input, Hidden and Output).
+        z2 : np.array([][], type = float64)
+            The output of the Hidden layerbefore aplying the activation 
+            fucntion.
+        """
         thetaOne = thetaOne if thetaOne is not None else self.thetaOne
         thetaTwo = thetaTwo if thetaTwo is not None else self.thetaTwo
-        p = p if p is not None else self.p
         
-        a1 = np.concatenate((np.ones((1,p)), inputData.T),0)
+        a1 = np.concatenate((np.ones((1,self.p)), inputData.T),0)
         z2 = thetaOne @ a1
-        a2 = np.concatenate((np.ones((1,p)), sigmoid(z2)),0)
+        a2 = np.concatenate((np.ones((1,self.p)), sigmoid(z2)),0)
         z3 = thetaTwo @ a2
         a3 = sigmoid(z3)
         return a1, z2, a2, a3
 
     
     def test(self):
+        """Evaluanting our MLP.
+       
+        This method only utilizes information given in the previous methods.
+        The TrainData has already been selected in the training.
+        
+        Returns
+        ---------
+        cost : float64
+            Deprecated
+        confArray : np.array([][], type = float64)
+            Confusing matrix outputed by the Alforithm.predict method
+        """
         [self.p,self.n] = self.testInput.shape
         _,_,_,a3 = self.feedf(self.testInput)
         cost = self.costf(self.testOutput, a3)
@@ -263,20 +370,22 @@ class MultiLayerPerceptron(Algorithm):
     
     
     def reset(self):
+        """Reset the trained MLP to its initial state."""
+        
         self.__init__(self.inputLayer, self.hiddenLayer,
                       self.outputLayer)
-        return True
-
+        return None
 
     def costplot(self):
+        """Plot all the Costs obtained during testing."""
+        
         JArray = np.array(self.JList)
         plt.plot(np.arange(len(self.JList)),self.JList)
         plt.axis([0, self.epochsNum, 0, JArray.max()])
         plt.ylabel('Cost function')
         plt.xlabel('No. of Epochs')
         plt.show()
-        return True
-    
+        return None
     
 class KNearestNeighbors(Algorithm):
     def __init__(self, inputData, outputData):
@@ -325,14 +434,17 @@ class KNearestNeighbors(Algorithm):
         self.nN = nNeighbors
         
         if randomize:
-            self.inputData, self.outputData = self.random_ini(self.inputData, 
-                                                              self.outputData)
+            self.inputData, self.outputData = self.random_ini(
+                                                  self.inputData, 
+                                                  self.outputData)
             
-        self.trainData,self.testData,_,self.y = self.dataPartition(self.inputData,
-                                                                 self.outputData,
-                                                                 trainSize)
+        self.trainData,self.testData,_,self.y = self.dataPartition(
+                                                    self.inputData,
+                                                    self.outputData,
+                                                    trainSize)
         try:
-            self.pred = self.nearestNeighbors(self.trainData, self.testData, 
+            self.pred = self.nearestNeighbors(self.trainData, 
+                                              self.testData, 
                                               self.y, dist)
         except:
             raise 
@@ -499,14 +611,7 @@ class kmeans(KNearestNeighbors):
     
     
 if __name__ == "__main__":
-    irisdf = pd.read_csv('data/iris.csv')
-    iris = np.array(irisdf.values)
-
-    x = np.array(iris[:,0:4],dtype='float64')
-    y = np.concatenate(
-            (np.tile(np.array([1,0,0]),(50,1)),np.tile(np.array([0,1,0]),(50,1)),
-             np.tile(np.array([0,0,1]),(50,1))),
-             0)
+    pass
 
 
         
