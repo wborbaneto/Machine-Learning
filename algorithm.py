@@ -2,7 +2,7 @@
 """
 Created on Fri Oct 12 17:26:43 2018
 
-@author: AHCI
+@author: wborbaneto
 """
 
 import numpy as np
@@ -42,7 +42,8 @@ class CustomError(Exception):
         """Value as a string."""
         
         return repr(str(self.value)+': '+self.message)    
-     
+    
+    
 class Algorithm():
     """Machine learning algoritm Class.
     
@@ -140,10 +141,9 @@ class Algorithm():
         for [a,b] in np.column_stack((pred.argmax(1), 
                                       y.argmax(1))):
             confArray[a,b] += 1
-            
+         
         confArray *=100/np.sum(confArray,0)
-        return confArray
-        
+        return confArray       
 
 class MultiLayerPerceptron(Algorithm):
     """Class that represents a MLP"""
@@ -198,7 +198,7 @@ class MultiLayerPerceptron(Algorithm):
             return None
 
 
-    def train(self, trainSize, epochsNum, thetaOne=None, thetaTwo=None, randomize=0):
+    def train(self, trainSize, epochsNum, thetaOne=None, thetaTwo=None, randomize=1):
         """Training our MLP.
         
         Parameters
@@ -219,6 +219,8 @@ class MultiLayerPerceptron(Algorithm):
         # Shuffle the data or not utilizing Algorithm.random_ini()
         if randomize:
             inputData, outputData = self.random_ini(self.x, self.y)
+        else:
+            inputData, outputData = self.x, self.y
         # Slicing the data to the desired train size.
         self.trainInput,self.testInput,self.trainOutput,self.testOutput = self.dataPartition(inputData, outputData,trainSize)
         # To reduce the number of .T operations, do this beforehand.
@@ -360,7 +362,7 @@ class MultiLayerPerceptron(Algorithm):
         cost : float64
             Deprecated
         confArray : np.array([][], type = float64)
-            Confusing matrix outputed by the Alforithm.predict method
+            Confusing matrix outputed by the Algorithm.predict method
         """
         [self.p,self.n] = self.testInput.shape
         _,_,_,a3 = self.feedf(self.testInput)
@@ -386,6 +388,7 @@ class MultiLayerPerceptron(Algorithm):
         plt.xlabel('No. of Epochs')
         plt.show()
         return None
+    
     
 class KNearestNeighbors(Algorithm):
     def __init__(self, inputData, outputData):

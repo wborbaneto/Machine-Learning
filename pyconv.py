@@ -134,3 +134,10 @@ def bin2str(binary, names):
         buffer[:,s] = 1
         y[np.all(binary==buffer,1).ravel()] = names[s]
     return y
+
+
+def normalize(values):
+    """Normalize a numeric array."""
+    
+    values = (values - np.min(values,0))/(np.max(values,0) - np.min(values,0))    
+    return values
