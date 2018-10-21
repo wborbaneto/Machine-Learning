@@ -9,11 +9,7 @@ import numpy as np
 
 def out_b(slices):
     """Create an binary array to represent classes.
-    
-    outputb([1,2,1]) : ans =    [1,0,0]
-                                [0,1,0]
-                                [0,1,0]
-                                [0,0,1]
+   
     Parameters
     ----------
     slices : list(type = int32)
@@ -23,6 +19,14 @@ def out_b(slices):
     ----------
     y : np.array([][], type = int32)
         The desired binary array.
+        
+    Example
+    -------
+     outputb([1,2,1]) : ans =    [1,0,0]
+                                [0,1,0]
+                                [0,1,0]
+                                [0,0,1]
+                                
     """
     
     numC = len(slices)
@@ -35,11 +39,7 @@ def out_b(slices):
 
 def out_d(slices):
     """Create an decimal array to represent classes.
-    
-    outputb([1,2,1]) : ans =    [0]
-                                [1]
-                                [1]
-                                [2]
+
     Parameters
     ----------
     slices : list(type = int32)
@@ -49,6 +49,14 @@ def out_d(slices):
     ----------
     y : np.array([][], type = int32)
         The desired binary array.
+        
+    Example
+    -------
+    outputb([1,2,1]) : ans =    [0]
+                                [1]
+                                [1]
+                                [2]
+                                
     """
     numC = len(slices)
     y = np.zeros([1,1])
@@ -59,10 +67,6 @@ def out_d(slices):
 def out_s(slices, names):
     """Create an string array to represent classes.
     
-    outputb([1,2,1], ['a','b','c']) : ans = ['a']
-                                            ['b']
-                                            ['b']
-                                            ['c']
     Parameters
     ----------
     slices : list(type = int32)
@@ -74,6 +78,14 @@ def out_s(slices, names):
     ----------
     y : np.array([][], type = int32)
         The desired binary array.
+        
+    Example
+    -------
+    outputb([1,2,1], ['a','b','c']) : ans = ['a']
+                                            ['b']
+                                            ['b']
+                                            ['c']
+                                            
     """
     numC = len(slices)
     y = np.zeros([1,1])
@@ -84,10 +96,6 @@ def out_s(slices, names):
 def dec2str(decimal, names):
     """Converts a decimal array in a string array.
     
-    outputb([0,1,1,2], ['a','b','c']) : ans = ['a']
-                                              ['b']
-                                              ['b']
-                                              ['c']
     Parameters
     ----------
     decimal : np.array([][], type = int32)
@@ -99,6 +107,14 @@ def dec2str(decimal, names):
     ----------
     y : np.array([][], type = int32)
         The desired binary array.
+        
+    Example
+    -------
+    outputb([0,1,1,2], ['a','b','c']) : ans = ['a']
+                                              ['b']
+                                              ['b']
+                                              ['c']
+                                              
     """
     numC = len(names)
     y = np.tile("               ",(decimal.shape))
@@ -108,12 +124,6 @@ def dec2str(decimal, names):
 
 def bin2str(binary, names):
     """Converts a binary array in a string array.
-    
-    outputb([[1,0,0],[0,1,0],[0,1,0],[0,0,1]], ['a','b','c']) 
-    ans =   ['a']
-            ['b']
-            ['b']
-            ['c']
             
     Parameters
     ----------
@@ -123,9 +133,18 @@ def bin2str(binary, names):
         Names given to each class.
         
     Returns
-    ----------
+    -------
     y : np.array([][], type = int32)
         The desired binary array.
+        
+    Example
+    -------
+    outputb([[1,0,0],[0,1,0],[0,1,0],[0,0,1]], ['a','b','c']) 
+    ans =   ['a']
+            ['b']
+            ['b']
+            ['c']
+            
     """
     numC = len(names)
     y = np.tile("               ",(binary.shape[0],1))

@@ -445,10 +445,11 @@ class KNearestNeighbors(Algorithm):
                                                     self.inputData,
                                                     self.outputData,
                                                     trainSize)
+        S = np.linalg.inv(np.cov(self.trainData.T))
         try:
             self.pred = self.nearestNeighbors(self.trainData, 
                                               self.testData, 
-                                              self.y, dist)
+                                              self.y, dist, S)
         except:
             raise 
             
@@ -456,7 +457,7 @@ class KNearestNeighbors(Algorithm):
         return None
       
     
-    def nearestNeighbors(self, trainData, testData, y, dist):
+    def nearestNeighbors(self, trainData, testData, y, dist, S):
         """Choose the Nearest Neighboor for each test input.
     
         Parameters
@@ -484,7 +485,7 @@ class KNearestNeighbors(Algorithm):
         elif dist == 'mDist':
             #raise CustomError(message = 'Not implemented yet.')
             for arr in testData:
-                listBuffer.append(self.mahalanobisDist(arr, trainData))
+                listBuffer.append(self.mahalanobisDist(arr, trainData, S))
         else: 
             raise CustomError(dist,' is not a distance definition.')
             
@@ -522,11 +523,10 @@ class KNearestNeighbors(Algorithm):
         """
         
         eDist = np.sqrt(np.sum((x2 - x1)**2,1))
-        print(eDist.shape)
         return eDist
     
     
-    def mahalanobisDist(self,x1, x2,S):
+    def mahalanobisDist(self,x1, x2, S):
         """Calculate the mahalanobis distance between x1 and x2
         
         Parameters
@@ -549,28 +549,36 @@ class KNearestNeighbors(Algorithm):
 class kmeans(KNearestNeighbors):
     
     def train(self, trainSize, centroidNum, randomize = 1, dist = 'eDist'):
+        """"""
+        
         self.centroidNum = centroidNum
-        self.centroid = np.random.rand(self.centroidNum,self.inputData.shape[1])
+        self.centroid = np.random.rand(self.centroidNum,
+                                       self.inputData.shape[1])
         
         if randomize:
             self.inputData, self.outputData = self.random_ini(self.inputData, 
                                                               self.outputData)
-        self.trainData,self.testData,_,self.y = self.dataPartition(self.inputData,
-                                                                 self.outputData,
-                                                                 trainSize)
+            
+        self.trainIn,self.testIn,_,self.eOut = self.dataPartition(
+                                                    self.inputData,
+                                                    self.outputData,
+                                                    trainSize)
         self.nN = 1
         error = 1
         intNum = 0
-        S = np.linalg.inv(np.cov(self.trainData.T))
+        S = np.linalg.inv(np.cov(self.trainIn.T))
+        
         while np.any(error > 0.0001) or intNum > 10000:
-            self.winners = self.cluster_assigment(self.trainData,self.centroid,dist,S)
-            newCentroid = self.move_centroid(self.trainData, self.winners)
+            self.winners = self.cluster_assigment(self.trainIn,self.centroid,dist,S)
+            newCentroid = self.move_centroid(self.trainIn, self.winners)
             error = abs(newCentroid - self.centroid)
             self.centroid = newCentroid
             intNum += 1
         return self.centroid,error
     
-    def cluster_assigment(self, trainData, testData, dist,S):
+    def cluster_assigment(self, trainData, testData, dist, S):
+        """"""
+        
         listBuffer = list()
         #trainData = x
         #testData = centroid
@@ -604,12 +612,14 @@ class kmeans(KNearestNeighbors):
 
     def test(self):
         centroid = self.centroid
-        outputData = self.y
-        inputData = self.testData
-        winner = self.cluster_assigment(inputData,centroid,'eDist')
+        outputData = self.eOut
+        inputData = self.testIn
+        S = np.linalg.inv(np.cov(self.testIn.T))
+        winner = self.cluster_assigment(inputData,centroid,'eDist', S)
         pred = np.zeros_like(outputData)
         pred[np.arange(outputData.shape[0]),winner.ravel()] = 1
         confArray = self.predict(pred,outputData)
+        self.testOut = winner
         return confArray
     
     

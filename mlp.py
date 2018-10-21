@@ -10,14 +10,6 @@ import matplotlib.pyplot as plt
 import algorithm as alg
 import pyconv as conv
 
-def s_anal(cal):
-    caMax = np.max(cal,0)
-    caMin =np.min(cal,0)
-    caMean = np.mean(cal,0)
-    caStd = np.std(cal,0)
-    return caMax,caMin,caMean,caStd
-    
-
 irisdf = pd.read_csv('data/iris.csv')
 iris = np.array(irisdf.values)
 
