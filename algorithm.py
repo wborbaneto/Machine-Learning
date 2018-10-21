@@ -552,8 +552,9 @@ class kmeans(KNearestNeighbors):
         """"""
         
         self.centroidNum = centroidNum
-        self.centroid = np.random.rand(self.centroidNum,
-                                       self.inputData.shape[1])
+        self.centroid = np.array([[0.1,0.6,0,0.0],[0.4,0.2,0.5,0.5],[0.6,0.4,0.7,0.7]]) + np.random.rand(centroidNum,self.inputData.shape[1])/100
+        #self.centroid = np.random.rand(self.centroidNum,
+        #                               self.inputData.shape[1])
         
         if randomize:
             self.inputData, self.outputData = self.random_ini(self.inputData, 
