@@ -21,6 +21,15 @@ def sigmoid_grad(z):
 	g = h*(1-h)
 	return g
 
+def random_ini(inputData, outputData):
+            # Concatenating the columns in I/O to maintain data structure. 
+            # In other words keep the I/O pairs attached.
+            random_io = np.c_[inputData,outputData]
+            np.random.shuffle(random_io)
+            # Slicing the shuffled data to I/O format again.
+            inputData = random_io[:,0:inputData.shape[1]]
+            outputData = random_io[:,inputData.shape[1]:]
+            return inputData,outputData
         
 class CustomError(Exception):
     """Class to handle errors."""
@@ -535,6 +544,7 @@ class KNearestNeighbors(Algorithm):
             First array. 
         x2 : np.array([][], type = float64)
             Second array.
+        
             
         Returns
         -------
@@ -552,9 +562,8 @@ class kmeans(KNearestNeighbors):
         """"""
         
         self.centroidNum = centroidNum
-        self.centroid = np.array([[0.1,0.6,0,0.0],[0.4,0.2,0.5,0.5],[0.6,0.4,0.7,0.7]]) + np.random.rand(centroidNum,self.inputData.shape[1])/100
-        #self.centroid = np.random.rand(self.centroidNum,
-        #                               self.inputData.shape[1])
+        self.centroid = np.random.rand(self.centroidNum,
+                                       self.inputData.shape[1])
         
         if randomize:
             self.inputData, self.outputData = self.random_ini(self.inputData, 
@@ -569,13 +578,14 @@ class kmeans(KNearestNeighbors):
         intNum = 0
         S = np.linalg.inv(np.cov(self.trainIn.T))
         
-        while np.any(error > 0.0001) or intNum > 10000:
+        while np.any(error > 0.00001) or intNum > 10000:
             self.winners = self.cluster_assigment(self.trainIn,self.centroid,dist,S)
             newCentroid = self.move_centroid(self.trainIn, self.winners)
             error = abs(newCentroid - self.centroid)
             self.centroid = newCentroid
             intNum += 1
-        return self.centroid,error
+        self.winners = self.cluster_assigment(self.trainIn,self.centroid,dist,S)
+        return self.centroid, self.winners
     
     def cluster_assigment(self, trainData, testData, dist, S):
         """"""
