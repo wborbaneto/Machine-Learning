@@ -22,16 +22,14 @@ cl1 = iris[0:a,:]
 cl2 = iris[a:a+b,:]
 cl3 = iris[a+b:a+b+c,:]
 
-cl3 = np.array(cl3.values)
-cl2 = np.array(cl2.values)
-cl1 = np.array(cl1.values)
+
 x = np.r_[cl1,cl2,cl3]
 y = conv.out_b([a,b,c])
 x,y = alg.random_ini(x,y)
 
 x =  (x - np.min(x,0))/(np.max(x,0) - np.min(x,0))
 
-dist = 'mDist'
+dist = 'eDist'
 
 km = alg.kmeans(x,y)  
 centroid,winners = km.train(1,3,randomize=0,dist=dist)
