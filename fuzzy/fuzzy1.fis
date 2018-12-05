@@ -1,0 +1,85 @@
+[System]
+Name='fuzzy1'
+Type='mamdani'
+Version=2.0
+NumInputs=5
+NumOutputs=3
+NumRules=7
+AndMethod='min'
+OrMethod='max'
+ImpMethod='min'
+AggMethod='max'
+DefuzzMethod='centroid'
+
+[Input1]
+Name='S1'
+Range=[0 1]
+NumMFs=3
+MF1='baixa':'trapmf',[-0.4 0 0.2 0.4]
+MF2='razoavel':'trapmf',[0.2 0.4 0.6 0.8]
+MF3='grande':'trapmf',[0.6 0.8 1 1.2]
+
+[Input2]
+Name='S2'
+Range=[0 1]
+NumMFs=3
+MF1='baixa':'trapmf',[-0.4 0 0.2 0.4]
+MF2='razoavel':'trapmf',[0.2 0.4 0.6 0.8]
+MF3='grande':'trapmf',[0.6 0.8 1 1.2]
+
+[Input3]
+Name='S3'
+Range=[0 1]
+NumMFs=3
+MF1='baixa':'trapmf',[-0.4 0 0.2 0.4]
+MF2='razoavel':'trapmf',[0.2 0.4 0.6 0.8]
+MF3='grande':'trapmf',[0.6 0.8 1 1.2]
+
+[Input4]
+Name='S4'
+Range=[0 1]
+NumMFs=3
+MF1='baixa':'trapmf',[-0.4 0 0.2 0.4]
+MF2='razoavel':'trapmf',[0.2 0.4 0.6 0.8]
+MF3='grande':'trapmf',[0.6 0.8 1 1.2]
+
+[Input5]
+Name='S5'
+Range=[0 1]
+NumMFs=3
+MF1='baixa':'trapmf',[-0.4 0 0.2 0.4]
+MF2='razoavel':'trapmf',[0.2 0.4 0.6 0.8]
+MF3='mf3':'trapmf',[0.6 0.8 1 1.2]
+
+[Output1]
+Name='TF1'
+Range=[5 30]
+NumMFs=3
+MF1='curto':'trimf',[-7.5 5 17.5]
+MF2='mediano':'trimf',[9.167 17.5 25.83]
+MF3='longo':'trimf',[17.5 30 40]
+
+[Output2]
+Name='TF2'
+Range=[5 30]
+NumMFs=3
+MF1='curto':'trimf',[-7.5 5 17.5]
+MF2='mediano':'trimf',[9.167 17.5 25.83]
+MF3='longo':'trimf',[17.5 30 40]
+
+[Output3]
+Name='TF3'
+Range=[5 30]
+NumMFs=3
+MF1='curto':'trimf',[-7.5 5 17.5]
+MF2='mediano':'trimf',[9.167 17.5 25.83]
+MF3='extenso':'trimf',[17.5 30 40]
+
+[Rules]
+3 3 3 0 1, 3 2 1 (1) : 1
+3 3 3 0 2, 3 2 1 (1) : 1
+3 3 3 0 3, 3 2 1 (1) : 1
+3 0 1 0 0, 3 1 1 (1) : 1
+1 0 3 0 0, 1 3 1 (1) : 1
+1 0 2 0 0, 2 2 1 (1) : 1
+2 0 1 0 0, 2 2 1 (1) : 1
